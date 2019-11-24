@@ -1,15 +1,15 @@
 from datetime import datetime
-from typing import Callable
 
 import gevent
-from flask import Flask, make_response, redirect, request
+from flask import Flask, make_response, request
 from gevent import pywsgi, sleep
 from geventwebsocket.handler import WebSocketHandler
-from geventwebsocket.websocket import WebSocket
+
+from websocketout import WebSocketOut
 
 app = Flask(__name__)
 
-id = -1
+id = 0
 
 
 @app.route("/ws")
@@ -17,22 +17,30 @@ def ws_app():
     if request.environ.get("wsgi.websocket"):
         ws = request.environ['wsgi.websocket']
         global id
-        id = id + 1
-        process(ws.send, id)
+        id += 1
+        process(ws, id)
     return make_response()
 
 
-# 呼び出し可能型; Callable[[int], str] は (int) -> str の関数です。
+@app.route("/reset")
+def reset():
+    global id
+    id = 0
+    return make_response("reset")
 
-def process(printws: Callable[[str], None], id: int = -1):
-    pre = f"process #{id}"
-    printws(f"{pre} start process {now_str()}")
 
-    for i in range(10):
-        printws(f"{pre}-{i} now processing.. {now_str()}")
+def process(ws, id: int):
+    with WebSocketOut(ws):
+
+        pre = f"process #{id}"
+        print(f"{pre} start process {now_str()}")
+
         sleep(1)
+        for i in range(3):
+            print(f"{pre}-{i+1} now processing.. {now_str()}")
+            sleep(1)
 
-    printws(f"{pre} finish process  {now_str()}")
+        print(f"{pre} finish process  {now_str()}")
 
 
 def now_str() -> str:
