@@ -29,10 +29,10 @@ def reset():
     return make_response("reset")
 
 
-def process(ws, id: int):
-    with WebSocketOut(ws):
+def process(ws, tmpID: int):
+    with WebSocketOut(ws, tmpID) as ws:
 
-        pre = f"process #{id}"
+        pre = f"process #{tmpID}"
         print(f"{pre} start process {now_str()}")
 
         sleep(1)
@@ -41,6 +41,11 @@ def process(ws, id: int):
             sleep(1)
 
         print(f"{pre} finish process  {now_str()}")
+        global id
+        ws.latestID = id
+
+    if id == tmpID:
+        print("no process exists")
 
 
 def now_str() -> str:
@@ -51,3 +56,4 @@ server = pywsgi.WSGIServer(("", 8000), app, handler_class=WebSocketHandler)
 
 if __name__ == "__main__":
     server.serve_forever()
+    # localhost:8000/static/index.html

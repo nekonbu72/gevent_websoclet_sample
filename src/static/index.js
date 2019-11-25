@@ -1,3 +1,5 @@
+const log = document.querySelector(".log");
+
 const start = document.querySelector(".start");
 start.addEventListener("click", () => {
   // WebSocket 接続を作成する
@@ -7,8 +9,7 @@ start.addEventListener("click", () => {
   socket.addEventListener("message", function(event) {
     const p = document.createElement("p");
     p.textContent = event.data;
-    const tgt = document.querySelector(".log");
-    tgt.appendChild(p);
+    log.appendChild(p);
   });
 });
 
@@ -17,4 +18,8 @@ reset.addEventListener("click", async () => {
   const resp = await fetch("http://localhost:8000/reset");
   const text = await resp.text();
   console.log(text);
+
+  while (log.firstChild) {
+    log.removeChild(log.firstChild);
+  }
 });
