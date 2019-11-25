@@ -1,6 +1,5 @@
 from datetime import datetime
 
-import gevent
 from flask import Flask, make_response, request
 from gevent import pywsgi, sleep
 from geventwebsocket.handler import WebSocketHandler
